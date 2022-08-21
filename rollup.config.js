@@ -10,5 +10,9 @@ export default {
   },
   plugins: [
     nodeResolve()
-  ]
+  ],
+  // external: [
+  // "firebase"
+  // ]
 };
+
