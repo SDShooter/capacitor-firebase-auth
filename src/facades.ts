@@ -1,7 +1,5 @@
-import 'firebase/auth';
 import {registerPlugin} from '@capacitor/core';
-
-import firebase from 'firebase/app';
+import firebaseAuth from 'firebase/auth';
 import { Observable, throwError } from 'rxjs';
 
 import {
@@ -19,11 +17,11 @@ const plugin: CapacitorFirebaseAuthPlugin = CapacitorFirebaseAuth;
  * @param providerId The provider identification.
  * @param data The provider additional information (optional).
  */
-export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<firebase.User> => {
-	const googleProvider = new firebase.auth.GoogleAuthProvider().providerId;
-	const facebookProvider = new firebase.auth.FacebookAuthProvider().providerId;
-	const twitterProvider = new firebase.auth.TwitterAuthProvider().providerId;
-	const phoneProvider = new firebase.auth.PhoneAuthProvider().providerId;
+export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<firebaseAuth.User> => {
+	const googleProvider = new firebaseAuth.GoogleAuthProvider().providerId;
+	const facebookProvider = new firebaseAuth.FacebookAuthProvider().providerId;
+	const twitterProvider = new firebaseAuth.TwitterAuthProvider().providerId;
+	const phoneProvider = new firebaseAuth.PhoneAuthProvider(this).providerId;
 	switch (providerId) {
 		case googleProvider:
 			return cfaSignInGoogle();
@@ -46,19 +44,19 @@ export const cfaSignIn = (providerId: string, data?: SignInOptions): Observable<
 /**
  * Call the Google sign in method on native layer and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInGoogle = (): Observable<firebase.User> => {
+export const cfaSignInGoogle = (): Observable<firebaseAuth.User> => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.GoogleAuthProvider.PROVIDER_ID;
+		const providerId = firebaseAuth.GoogleAuthProvider.PROVIDER_ID;
 
 		// native sign in
 		plugin.signIn<GoogleSignInResult>({ providerId }).then((result: GoogleSignInResult) => {
 			// create the credentials
-			const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken);
+			const credential = firebaseAuth.GoogleAuthProvider.credential(result.idToken);
 
-			// web sign in
-			firebase.app().auth().signInWithCredential(credential)
-				.then((userCredential: firebase.auth.UserCredential) => {
+			// web sign in			
+			firebaseAuth.signInWithCredential(null, credential) //todo added NULL here.. Might need googleProvider from above
+				.then((userCredential: firebaseAuth.UserCredential) => {
 					if(!userCredential.user) {
 						throw new Error('Firebase User was not received.')
 					}
@@ -77,19 +75,19 @@ export const cfaSignInGoogle = (): Observable<firebase.User> => {
 /**
  * Call the Twitter sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInTwitter = (): Observable<firebase.User> => {
+export const cfaSignInTwitter = (): Observable<firebaseAuth.User> => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.TwitterAuthProvider.PROVIDER_ID;
+		const providerId = firebaseAuth.TwitterAuthProvider.PROVIDER_ID;
 
 		// native sign in
 		plugin.signIn<TwitterSignInResult>({ providerId }).then((result: TwitterSignInResult) => {
 			// create the credentials
-			const credential = firebase.auth.TwitterAuthProvider.credential(result.idToken, result.secret);
+			const credential = firebaseAuth.TwitterAuthProvider.credential(result.idToken, result.secret);
 
 			// web sign in
-			firebase.app().auth().signInWithCredential(credential)
-				.then((userCredential: firebase.auth.UserCredential) => {
+			firebaseAuth.signInWithCredential(null, credential) //TODO: added null here
+				.then((userCredential: firebaseAuth.UserCredential) => {
 					if(!userCredential.user) {
 						throw new Error('Firebase User was not received.')
 					}
@@ -105,19 +103,19 @@ export const cfaSignInTwitter = (): Observable<firebase.User> => {
 /**
  * Call the Facebook sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInFacebook = (): Observable<firebase.User> => {
+export const cfaSignInFacebook = (): Observable<firebaseAuth.User> => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.FacebookAuthProvider.PROVIDER_ID;
+		const providerId = firebaseAuth.FacebookAuthProvider.PROVIDER_ID;
 
 		// native sign in
 		plugin.signIn<FacebookSignInResult>({ providerId }).then((result: FacebookSignInResult) => {
 			// create the credentials
-			const credential = firebase.auth.FacebookAuthProvider.credential(result.idToken);
+			const credential = firebaseAuth.FacebookAuthProvider.credential(result.idToken);
 
 			// web sign in
-			firebase.app().auth().signInWithCredential(credential)
-				.then((userCredential: firebase.auth.UserCredential) => {
+			firebaseAuth.signInWithCredential(null, credential) //TODO: added null here
+				.then((userCredential: firebaseAuth.UserCredential) => {
 					if(!userCredential.user) {
 						throw new Error('Firebase User was not received.')
 					}
@@ -135,21 +133,21 @@ export const cfaSignInAppleProvider = 'apple.com';
 /**
  * Call the Apple sign in method on native and sign in on web layer with retrieved credentials.
  */
-export const cfaSignInApple = (): Observable<firebase.User> => {
+export const cfaSignInApple = (): Observable<firebaseAuth.User> => {
 	return new Observable(observer => {
 		// native sign in
 		plugin.signIn<AppleSignInResult>({ providerId: cfaSignInAppleProvider }).then((result: AppleSignInResult) => {
 			const { idToken, rawNonce } = result;
 
-			const provider = new firebase.auth.OAuthProvider('apple.com');
+			const provider = new firebaseAuth.OAuthProvider('apple.com');
 			provider.addScope('email');
 			provider.addScope('name');
 
 			const credential = provider.credential({ idToken, rawNonce })
 
 			// web sign in
-			firebase.app().auth().signInWithCredential(credential)
-				.then((userCredential: firebase.auth.UserCredential) => {
+			firebaseAuth.signInWithCredential(null, credential) //TODO: added null here
+				.then((userCredential: firebaseAuth.UserCredential) => {
 					if(!userCredential.user) {
 						throw new Error('Firebase User was not received.')
 					}
@@ -166,10 +164,10 @@ export const cfaSignInApple = (): Observable<firebase.User> => {
  * @param phone The user phone number.
  * @param verificationCode The verification code sent by SMS (optional).
  */
-export const cfaSignInPhone = (phone: string, verificationCode?: string): Observable<firebase.User> => {
+export const cfaSignInPhone = (phone: string, verificationCode?: string): Observable<firebaseAuth.User> => {
 	return new Observable(observer => {
 		// get the provider id
-		const providerId = firebase.auth.PhoneAuthProvider.PROVIDER_ID;
+		const providerId = firebaseAuth.PhoneAuthProvider.PROVIDER_ID;
 
 		plugin.signIn<PhoneSignInResult>({ providerId, data: { phone, verificationCode } }).then((result: PhoneSignInResult) => {
 			// if there is no verification code
@@ -178,11 +176,11 @@ export const cfaSignInPhone = (phone: string, verificationCode?: string): Observ
 			}
 
 			// create the credentials
-			const credential = firebase.auth.PhoneAuthProvider.credential(result.verificationId, result.verificationCode);
+			const credential = firebaseAuth.PhoneAuthProvider.credential(result.verificationId, result.verificationCode);
 
 			// web sign in
-			firebase.app().auth().signInWithCredential(credential)
-				.then((userCredential: firebase.auth.UserCredential) => {
+			firebaseAuth.signInWithCredential(null, credential) //TODO: Added null here
+				.then((userCredential: firebaseAuth.UserCredential) => {
 					if(!userCredential.user) {
 						throw new Error('Firebase User was not received.')
 					}
@@ -229,7 +227,7 @@ export const cfaSignOut = (): Observable<void> => {
 	return new Observable(observer => {
 		plugin.signOut({}).then(() => {
 			// web sign out
-			firebase.app().auth().signOut()
+			firebaseAuth.signOut(null) //TODO: added null here
 				.then(() => {
 					observer.next();
 					observer.complete();

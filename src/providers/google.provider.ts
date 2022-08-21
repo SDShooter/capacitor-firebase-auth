@@ -1,16 +1,13 @@
-import 'firebase/auth';
-
-import firebase from 'firebase/app';
+import firebaseAuth, { GoogleAuthProvider } from 'firebase/auth';
 
 import { GoogleSignInResult, SignInOptions } from '../definitions';
 
-import OAuthCredential = firebase.auth.OAuthCredential;
-
 export const googleSignInWeb: (options: { providerId: string, data?: SignInOptions }) => Promise<GoogleSignInResult>
     = async () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().useDeviceLanguage();
-        const userCredential = await firebase.auth().signInWithPopup(provider);
-        const credential = userCredential?.credential as OAuthCredential;
+        const provider = new firebaseAuth.GoogleAuthProvider();
+        firebaseAuth.useDeviceLanguage(null); //TODO: added null
+        const result = await firebaseAuth.signInWithPopup(null, provider); //TODO: added null
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+
         return new GoogleSignInResult(credential.idToken as string);
     }

@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import firebaseAuth from 'firebase/auth';
 import { Observable, pipe, UnaryFunction } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -18,8 +18,8 @@ import { map } from 'rxjs/operators';
  * )
  * ```
  */
-export const mapUserToUserInfo = (): UnaryFunction<Observable<firebase.User>, Observable<firebase.UserInfo>> =>
-	pipe(map((user: firebase.User) => {
+export const mapUserToUserInfo = (): UnaryFunction<Observable<firebaseAuth.User>, Observable<firebaseAuth.UserInfo>> =>
+	pipe(map((user: firebaseAuth.User) => {
 		if (user) {
 			const { uid, providerId, displayName, photoURL, phoneNumber, email } = user;
 			return { uid, providerId, displayName, photoURL, phoneNumber, email };
@@ -45,8 +45,8 @@ export const mapUserToUserInfo = (): UnaryFunction<Observable<firebase.User>, Ob
  * )
  * ```
  */
-export const mapUserCredentialToUserInfo = (): UnaryFunction<Observable<{ userCredential: firebase.auth.UserCredential }>, Observable<firebase.UserInfo | null>> =>
-	pipe(map(({ userCredential }: { userCredential: firebase.auth.UserCredential }) => {
+export const mapUserCredentialToUserInfo = (): UnaryFunction<Observable<{ userCredential: firebaseAuth.UserCredential }>, Observable<firebaseAuth.UserInfo | null>> =>
+	pipe(map(({ userCredential }: { userCredential: firebaseAuth.UserCredential }) => {
 		if (userCredential?.user) {
 			const { uid, providerId, displayName, photoURL, phoneNumber, email } = userCredential.user;
 			return { uid, providerId, displayName, photoURL, phoneNumber, email };

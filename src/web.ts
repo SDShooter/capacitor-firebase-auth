@@ -1,6 +1,4 @@
-import 'firebase/auth';
-
-import firebase from 'firebase/app';
+import firebaseAuth from 'firebase/auth';
 
 import { WebPlugin } from '@capacitor/core';
 
@@ -18,10 +16,10 @@ export class CapacitorFirebaseAuthWeb extends WebPlugin implements CapacitorFire
 
   async signIn<T extends SignInResult>(options: { providerId: string, data?: SignInOptions }): Promise<T> {
       const appleProvider = 'apple.com';
-      const googleProvider = new firebase.auth.GoogleAuthProvider().providerId;
-      const facebookProvider = new firebase.auth.FacebookAuthProvider().providerId;
-      const twitterProvider = new firebase.auth.TwitterAuthProvider().providerId;
-      const phoneProvider = new firebase.auth.PhoneAuthProvider().providerId;
+      const googleProvider = new firebaseAuth.GoogleAuthProvider().providerId;
+      const facebookProvider = new firebaseAuth.FacebookAuthProvider().providerId;
+      const twitterProvider = new firebaseAuth.TwitterAuthProvider().providerId;
+      const phoneProvider = new firebaseAuth.PhoneAuthProvider(null).providerId;
       
       switch (options.providerId) {
           case appleProvider:
@@ -41,6 +39,6 @@ export class CapacitorFirebaseAuthWeb extends WebPlugin implements CapacitorFire
 
   async signOut(options: {}): Promise<void> {
       console.log(options);
-      return firebase.auth().signOut()
+      return firebaseAuth.signOut(null)
   }
 }
