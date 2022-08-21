@@ -11,8 +11,8 @@ export default {
   plugins: [
     nodeResolve()
   ],
-  // external: [
-  // "firebase"
-  // ]
+   external: [
+   "firebase"
+   ]
 };
 
